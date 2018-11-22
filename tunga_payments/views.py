@@ -244,6 +244,24 @@ class InvoiceViewSet(ModelViewSet):
         else:
             return Response(dict(message='Invoice has been already paid'), status=status.HTTP_200_OK)
 
+    @detail_route(methods=['post'], permission_classes=[IsAuthenticated, DRYPermissions],
+                  url_path='unarchive', url_name='unarchive-unpaid-invoices')
+    def unarchive_invoice(self, request, pk=None):
+        """
+            Invoice Payment Endpoint
+            ---
+            omit_serializer: true
+            omit_parameters: false
+                - query
+        """
+        invoice = self.get_object()
+        if invoice.archived:
+            invoice.archived = False
+            invoice.save()
+            return Response(dict(message='Invoice has been unarchived'), status=status.HTTP_201_CREATED)
+        else:
+            return Response(dict(message='Invoice is not archived'), status=status.HTTP_200_OK)
+
 
 class PaymentViewSet(ModelViewSet):
     serializer_class = PaymentSerializer
