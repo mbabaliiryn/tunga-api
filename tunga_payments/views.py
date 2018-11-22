@@ -36,7 +36,7 @@ from tunga_utils.filterbackends import DEFAULT_FILTER_BACKENDS
 
 class InvoiceViewSet(ModelViewSet):
     serializer_class = InvoiceSerializer
-    queryset = Invoice.objects.filter(archived=False)
+    queryset = Invoice.objects.filter()
     permission_classes = [IsAuthenticated, DRYPermissions]
     filter_class = InvoiceFilter
     filter_backends = DEFAULT_FILTER_BACKENDS + (InvoiceFilterBackend,)
@@ -211,7 +211,8 @@ class InvoiceViewSet(ModelViewSet):
             except PermissionDenied:
                 return HttpResponse("You do not have permission to access this invoice")
 
-            if not (invoice.is_due or request.user.is_admin or request.user.is_project_manager or request.user.is_developer):
+            if not (
+                invoice.is_due or request.user.is_admin or request.user.is_project_manager or request.user.is_developer):
                 return HttpResponse("You do not have permission to access this invoice")
 
         if request.accepted_renderer.format == 'html':
