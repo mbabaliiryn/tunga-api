@@ -289,9 +289,11 @@ class InvoiceViewSet(ModelViewSet):
                 invoice.number = invoice_number
                 Invoice.objects.filter(id=invoice.id).update(number=invoice_number)
                 notify_invoice.delay(invoice.id, updated=False)
-            return Response(dict(message='Invoice has been generated'), status=status.HTTP_201_CREATED)
+            invoice_serializer = InvoiceSerializer(invoice, context={'request': request})
+            return Response(invoice_serializer.data, status=status.HTTP_201_CREATED)
         else:
-            return Response(dict(message='Invoice was already generated'), status=status.HTTP_200_OK)
+            invoice_serializer = InvoiceSerializer(invoice, context={'request': request})
+            return Response(invoice_serializer.data, status=status.HTTP_200_OK)
 
 
 class PaymentViewSet(ModelViewSet):
