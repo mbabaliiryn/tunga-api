@@ -23,8 +23,8 @@
                         Attn: {{ invoice.user.display_name }}<br/>
                         {{ invoice.user.company.street | default:'' }} {{ invoice.user.company.plot_number | default:'' }}<br/>
                         {{ invoice.user.company.postal_code | default:'' }}
-                            {% if invoice.user.company.postal_code and invoice.user.company.city %}
-                                , {% endif %}{{ invoice.user.company.city | default:'' }}<br/>
+                        {% if invoice.user.company.postal_code and invoice.user.company.city %}
+                            , {% endif %}{{ invoice.user.company.city | default:'' }}<br/>
                         {{ invoice.user.company.country_name | default:'' }}
 
                         {% if invoice.tax_invoice.tax_location == "europe" %}
@@ -92,7 +92,7 @@
                     <tr>
                         <td>{% if invoice.type == "developer" %}Tunga fee for {% endif %}{{ invoice.full_title }}</td>
                         <td>
-                            &euro; -{{ invoice.credit_note_amount | floatformat:2 }}
+                            &euro; -{{ invoice.amount | floatformat:2 }}
                         </td>
                     </tr>
 
