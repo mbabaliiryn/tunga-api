@@ -8,10 +8,10 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 import logging
 import os
-from django.utils.translation import ugettext_lazy as _
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import sys
+
+from django.utils.translation import ugettext_lazy as _
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -416,6 +416,7 @@ SLACK_STAFF_PAYMENTS_CHANNEL = '#payments'
 SLACK_STAFF_PROFILES_CHANNEL = '#developer-profiles'
 SLACK_STAFF_HUBSPOT_CHANNEL = '#hubspot'
 SLACK_STAFF_REPORTS_CHANNEL = '#weeklyreport'
+SLACK_STAFF_PLATFORM_ALERTS = '#platform-alerts'
 SLACK_DEVELOPER_UPDATES_CHANNEL = '#general'
 SLACK_DEVELOPER_OPPORTUNITIES_CHANNEL = '#newopportunities'
 SLACK_PMS_UPDATES_CHANNEL = '#projects'

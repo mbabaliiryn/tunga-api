@@ -4,7 +4,8 @@ from django.contrib.auth import get_user_model
 from django_rq.decorators import job
 
 from tunga.settings import TUNGA_STAFF_UPDATE_EMAIL_RECIPIENTS, TUNGA_URL, SLACK_STAFF_INCOMING_WEBHOOK, \
-    SLACK_ATTACHMENT_COLOR_GREEN, SLACK_ATTACHMENT_COLOR_RED, SLACK_STAFF_PROFILES_CHANNEL, SLACK_STAFF_LEADS_CHANNEL
+    SLACK_ATTACHMENT_COLOR_GREEN, SLACK_ATTACHMENT_COLOR_RED, SLACK_STAFF_PROFILES_CHANNEL, SLACK_STAFF_LEADS_CHANNEL, \
+    SLACK_STAFF_PLATFORM_ALERTS
 from tunga_profiles.models import DeveloperApplication, Skill, DeveloperInvitation, UserProfile, UserRequest
 from tunga_tasks.models import Task
 from tunga_utils import slack_utils
@@ -74,7 +75,7 @@ def send_developer_invited_email(instance, resend=False):
     to = [instance.email]
     ctx = {
         'invite': instance,
-        'invite_url': '%s/signup/invite/%s/' % (TUNGA_URL, instance.invitation_key, )
+        'invite_url': '%s/signup/invite/%s/' % (TUNGA_URL, instance.invitation_key,)
     }
     if send_mail(subject, 'tunga/email/user_invitation', to, ctx):
         if resend:
@@ -86,22 +87,7 @@ def send_developer_invited_email(instance, resend=False):
         instance.save()
 
         if not resend:
-            send_new_developer_invitation_sent_email(instance)
-
-
-@job
-def send_new_developer_invitation_sent_email(instance):
-    instance = clean_instance(instance, DeveloperInvitation)
-    subject = "{} has been invited to become a Tunga {}".format(
-        instance.first_name,
-        instance.get_type_display().lower()
-    )
-    to = [instance.created_by.email]
-    to.extend(TUNGA_STAFF_UPDATE_EMAIL_RECIPIENTS)
-    ctx = {
-        'invite': instance
-    }
-    send_mail(subject, 'tunga/email/user_invitation_sent', to, ctx)
+            notify_user_has_been_invited_to_developer_slack(instance)
 
 
 @job
@@ -181,5 +167,39 @@ def notify_user_request_slack(instance):
         {
             slack_utils.KEY_TEXT: slack_msg,
             slack_utils.KEY_CHANNEL: SLACK_STAFF_LEADS_CHANNEL
+        }
+    )
+
+
+@job
+def notify_user_has_been_invited_to_developer_slack(instance):
+    instance = clean_instance(instance, DeveloperInvitation)
+    slack_msg = "{} has been invited to become a Tunga {}".format(
+        instance.first_name,
+        instance.get_type_display().lower()
+    )
+
+    slack_utils.send_incoming_webhook(
+        SLACK_STAFF_INCOMING_WEBHOOK,
+        {
+            slack_utils.KEY_TEXT: slack_msg,
+            slack_utils.KEY_CHANNEL: SLACK_STAFF_PLATFORM_ALERTS
+        }
+    )
+
+
+@job
+def notify_tunga_new_skill_has_been_added(instance):
+    instance = clean_instance(instance, Skill)
+
+    slack_msg = "{} has been added as a new skill".format(
+        instance.name,
+    )
+
+    slack_utils.send_incoming_webhook(
+        SLACK_STAFF_INCOMING_WEBHOOK,
+        {
+            slack_utils.KEY_TEXT: slack_msg,
+            slack_utils.KEY_CHANNEL: SLACK_STAFF_PLATFORM_ALERTS
         }
     )

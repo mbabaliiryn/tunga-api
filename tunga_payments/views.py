@@ -25,12 +25,12 @@ from stripe import InvalidRequestError
 from tunga_payments.filterbackends import InvoiceFilterBackend, PaymentFilterBackend
 from tunga_payments.filters import InvoiceFilter, PaymentFilter
 from tunga_payments.models import Invoice, Payment
-from tunga_payments.notifications.generic import notify_paid_invoice
+from tunga_payments.notifications.generic import notify_paid_invoice, notify_invoice
 from tunga_payments.serializers import InvoiceSerializer, PaymentSerializer, StripePaymentSerializer, \
     BulkInvoiceSerializer
 from tunga_tasks.renderers import PDFRenderer
 from tunga_utils import stripe_utils
-from tunga_utils.constants import PAYMENT_METHOD_STRIPE, CURRENCY_EUR, STATUS_COMPLETED
+from tunga_utils.constants import PAYMENT_METHOD_STRIPE, CURRENCY_EUR, STATUS_COMPLETED, INVOICE_TYPE_CREDIT_NOTA
 from tunga_utils.filterbackends import DEFAULT_FILTER_BACKENDS
 
 
@@ -41,6 +41,20 @@ class InvoiceViewSet(ModelViewSet):
     filter_class = InvoiceFilter
     filter_backends = DEFAULT_FILTER_BACKENDS + (InvoiceFilterBackend,)
     search_fields = ('title', '^project__title')
+
+    def update(self, request, *args, **kwargs):
+        print request.data
+        if 'amount' in request.data:
+            invoice_id = kwargs.get('pk', None)
+            invoice = Invoice.objects.filter(id=invoice_id).first()
+            amount = request.data['amount']
+            if Decimal(amount) < invoice.amount:
+                invoice_difference = invoice.amount - Decimal(amount)
+                invoice.credit_note_amount = invoice_difference
+                invoice.send_credit_note = True
+                invoice.save()
+                notify_invoice.delay(invoice.id, updated=True)
+        return super(InvoiceViewSet, self).update(request, *args, **kwargs)
 
     @list_route(methods=['post'], permission_classes=[IsAuthenticated, DRYPermissions],
                 url_path='bulk', url_name='bulk-create-invoices')
@@ -211,19 +225,31 @@ class InvoiceViewSet(ModelViewSet):
             except PermissionDenied:
                 return HttpResponse("You do not have permission to access this invoice")
 
-            if not (invoice.is_due or request.user.is_admin or request.user.is_project_manager or request.user.is_developer):
+            if not (
+                invoice.is_due or request.user.is_admin or request.user.is_project_manager or request.user.is_developer):
                 return HttpResponse("You do not have permission to access this invoice")
 
         if request.accepted_renderer.format == 'html':
+            if invoice.type == INVOICE_TYPE_CREDIT_NOTA:
+                return HttpResponse(invoice.credit_note_html)
             return HttpResponse(invoice.html)
         else:
-            http_response = HttpResponse(invoice.pdf, content_type='application/pdf')
-            http_response['Content-Disposition'] = 'filename="Invoice_{}_{}_{}.pdf"'.format(
-                invoice and invoice.number or pk,
-                invoice and invoice.project and invoice.project.title or pk,
-                invoice and invoice.title or pk
-            )
-            return http_response
+            if invoice.type == INVOICE_TYPE_CREDIT_NOTA:
+                http_response = HttpResponse(invoice.credit_note_pdf, content_type='application/pdf')
+                http_response['Content-Disposition'] = 'filename="Invoice_{}_{}_{}.pdf"'.format(
+                    invoice and invoice.number or pk,
+                    invoice and invoice.project and invoice.project.title or pk,
+                    invoice and invoice.title or pk
+                )
+                return http_response
+            else:
+                http_response = HttpResponse(invoice.pdf, content_type='application/pdf')
+                http_response['Content-Disposition'] = 'filename="Invoice_{}_{}_{}.pdf"'.format(
+                    invoice and invoice.number or pk,
+                    invoice and invoice.project and invoice.project.title or pk,
+                    invoice and invoice.title or pk
+                )
+                return http_response
 
     @detail_route(methods=['post'], permission_classes=[IsAuthenticated, DRYPermissions],
                   url_path='archive', url_name='archive-unpaid-invoices')
@@ -242,6 +268,32 @@ class InvoiceViewSet(ModelViewSet):
             return Response(dict(message='Invoice has been archived'), status=status.HTTP_201_CREATED)
         else:
             return Response(dict(message='Invoice has been already paid'), status=status.HTTP_200_OK)
+
+    @detail_route(methods=['post'], permission_classes=[IsAuthenticated, DRYPermissions],
+                  url_path='generate', url_name='generate-invoice')
+    def generate_invoice(self, request, pk=None):
+        """
+            Invoice Generate Endpoint
+            ---
+            omit_serializer: true
+            omit_parameters: false
+                - query
+        """
+        invoice = self.get_object()
+        if not invoice.finalized:
+            invoice.finalized = True
+            invoice.save()
+            if not invoice.number:
+                # generate and save invoice number
+                invoice_number = invoice.generate_invoice_number()
+                invoice.number = invoice_number
+                Invoice.objects.filter(id=invoice.id).update(number=invoice_number)
+                notify_invoice.delay(invoice.id, updated=False)
+            invoice_serializer = InvoiceSerializer(invoice, context={'request': request})
+            return Response(invoice_serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            invoice_serializer = InvoiceSerializer(invoice, context={'request': request})
+            return Response(invoice_serializer.data, status=status.HTTP_200_OK)
 
 
 class PaymentViewSet(ModelViewSet):

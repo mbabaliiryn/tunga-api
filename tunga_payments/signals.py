@@ -13,13 +13,13 @@ def activity_handler_new_invoice(sender, instance, created, **kwargs):
         if not instance.legacy_id:
             action.send(instance.created_by, verb=verbs.CREATE, action_object=instance, target=instance.project)
 
-        if not instance.number:
-            # generate and save invoice number
-            invoice_number = instance.generate_invoice_number()
-            instance.number = invoice_number
-            Invoice.objects.filter(id=instance.id).update(number=invoice_number)
-
-        notify_invoice.delay(instance.id, updated=False)
+        # if not instance.number:
+        #     # generate and save invoice number
+        #     invoice_number = instance.generate_invoice_number()
+        #     instance.number = invoice_number
+        #     Invoice.objects.filter(id=instance.id).update(number=invoice_number)
+        #
+        # notify_invoice.delay(instance.id, updated=False)
 
 
 @receiver(post_save, sender=Payment)
