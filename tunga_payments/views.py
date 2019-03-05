@@ -43,17 +43,6 @@ class InvoiceViewSet(ModelViewSet):
     search_fields = ('title', '^project__title')
 
     def update(self, request, *args, **kwargs):
-        print request.data
-        if 'amount' in request.data:
-            invoice_id = kwargs.get('pk', None)
-            invoice = Invoice.objects.filter(id=invoice_id).first()
-            amount = request.data['amount']
-            if Decimal(amount) < invoice.amount:
-                invoice_difference = invoice.amount - Decimal(amount)
-                invoice.credit_note_amount = invoice_difference
-                invoice.send_credit_note = True
-                invoice.save()
-                notify_invoice.delay(invoice.id, updated=True)
         return super(InvoiceViewSet, self).update(request, *args, **kwargs)
 
     @list_route(methods=['post'], permission_classes=[IsAuthenticated, DRYPermissions],
@@ -61,7 +50,6 @@ class InvoiceViewSet(ModelViewSet):
     def create_bulk_invoices(self, request):
         group_batch_ref = uuid.uuid4()
         for list_invoices in request.data:
-            print(request.data)
             serializer = InvoiceSerializer(data=list_invoices, context={'request': request})
             if serializer.is_valid():
                 serializer.save(batch_ref=group_batch_ref)
