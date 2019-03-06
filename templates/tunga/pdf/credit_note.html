@@ -7,7 +7,7 @@
     }
 {% endblock %}
 {% block pdf_content %}
-    {% with sales_types="sale client" purchase_types="purchase tunga" btc_methods="bitcoin bitonic" bank_methods="bank stripe" %}
+    {% with sales_types="sale client credit_nota" purchase_types="purchase tunga" btc_methods="bitcoin bitonic" bank_methods="bank stripe" %}
         <div class="container">
             <div style="margin: 20px 0 10px;text-align: left;">
                 {% if invoice.type in purchase_types.split %}
