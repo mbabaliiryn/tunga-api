@@ -69,7 +69,6 @@ def notify_new_invoice_email_client(invoice):
 
 @job
 def notify_updated_invoice_email_client(invoice):
-    return 
     invoice = clean_instance(invoice, Invoice)
 
     today_end = datetime.datetime.utcnow().replace(hour=23, minute=59, second=59, microsecond=999999)
@@ -93,12 +92,12 @@ def notify_updated_invoice_email_client(invoice):
             mandrill_utils.create_merge_var('payment_link', payment_link),
         ]
 
-        pdf_file_contents = base64.b64encode(invoice.pdf)
+        pdf_file_contents = base64.b64encode(invoice.credit_note_pdf)
 
         attachments = [
             dict(
                 content=pdf_file_contents,
-                name='Invoice - {}.pdf'.format(invoice.full_title),
+                name='Credit note for Invoice - {}.pdf'.format(invoice.full_title),
                 type='application/pdf'
             )
         ]

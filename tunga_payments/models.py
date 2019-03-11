@@ -22,7 +22,7 @@ from tunga_utils.constants import PAYMENT_METHOD_STRIPE, PAYMENT_METHOD_BANK, PA
     INVOICE_TYPE_CHOICES, CURRENCY_EUR, CURRENCY_CHOICES_EUR_ONLY, \
     INVOICE_TYPE_PURCHASE, PAYMENT_TYPE_PURCHASE, PAYMENT_TYPE_SALE, VAT_LOCATION_WORLD, VAT_LOCATION_EUROPE, \
     VAT_LOCATION_NL, INVOICE_TYPE_SALE, INVOICE_TYPE_CLIENT, INVOICE_PAYMENT_METHOD_CHOICES, STATUS_INITIATED, \
-    STATUS_COMPLETED, STATUS_FAILED, STATUS_RETRY
+    STATUS_COMPLETED, STATUS_FAILED, STATUS_RETRY, INVOICE_TYPE_CREDIT_NOTA
 from tunga_utils.validators import validate_btc_address_or_none
 
 
@@ -47,6 +47,7 @@ class Invoice(models.Model):
     processing_fee = models.DecimalField(max_digits=17, decimal_places=2, default=0)
     status = models.CharField(max_length=50, choices=status_choices, null=True, blank=True)
     paid = models.BooleanField(default=False)
+    finalized = models.BooleanField(default=False)
     archived = models.BooleanField(default=False)
     paid_at = models.DateTimeField(null=True, blank=True)
     batch_ref = models.UUIDField(default=uuid.uuid4)
@@ -106,7 +107,8 @@ class Invoice(models.Model):
 
     @property
     def full_title(self):
-        return '{}{}{}'.format(self.project.title, self.project.title != self.title and ': ' or '', self.project.title != self.title and self.title or '')
+        return '{}{}{}'.format(self.project.title, self.project.title != self.title and ': ' or '',
+                               self.project.title != self.title and self.title or '')
 
     @property
     def tax_amount(self):
@@ -134,7 +136,7 @@ class Invoice(models.Model):
 
     @property
     def tax_location(self):
-        if self.type in [INVOICE_TYPE_SALE,
+        if self.type in [INVOICE_TYPE_SALE, INVOICE_TYPE_CREDIT_NOTA,
                          INVOICE_TYPE_CLIENT] and self.user and self.user.company and self.user.company.country and self.user.company.country.code:
             client_country = self.user.company.country.code
             if client_country == VAT_LOCATION_NL:
@@ -144,7 +146,7 @@ class Invoice(models.Model):
                 'BE', 'BG', 'CZ', 'DK', 'DE', 'EE', 'IE', 'EL', 'ES', 'FR', 'HR', 'IT', 'CY', 'LV', 'LT', 'LU',
                 'HU', 'MT', 'AT', 'PL', 'PT', 'RO', 'SI', 'SK', 'FI', 'SE', 'UK'
                 # European Free Trade Association (EFTA)
-                'IS', 'LI', 'NO', 'CH'
+                                                                            'IS', 'LI', 'NO', 'CH'
             ]:
                 return VAT_LOCATION_EUROPE
         return VAT_LOCATION_WORLD
@@ -156,6 +158,14 @@ class Invoice(models.Model):
     @property
     def pdf(self):
         return HTML(string=self.html, encoding='utf-8').write_pdf()
+
+    @property
+    def credit_note_html(self):
+        return render_to_string("tunga/pdf/credit_note.html", context=dict(invoice=self)).encode(encoding="UTF-8")
+
+    @property
+    def credit_note_pdf(self):
+        return HTML(string=self.credit_note_html, encoding='utf-8').write_pdf()
 
     @property
     def download_url(self):

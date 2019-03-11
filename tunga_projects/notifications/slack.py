@@ -1,6 +1,7 @@
 import datetime
 import os
 
+from django.contrib.auth import get_user_model
 from django.template.defaultfilters import floatformat
 from django_rq import job
 
@@ -8,7 +9,7 @@ from tunga.settings import TUNGA_URL, SLACK_STAFF_INCOMING_WEBHOOK, SLACK_STAFF_
     SLACK_ATTACHMENT_COLOR_TUNGA, SLACK_ATTACHMENT_COLOR_GREEN, SLACK_STAFF_UPDATES_CHANNEL, SLACK_ATTACHMENT_COLOR_RED, \
     SLACK_ATTACHMENT_COLOR_NEUTRAL, SLACK_ATTACHMENT_COLOR_BLUE, SLACK_STAFF_MISSED_UPDATES_CHANNEL, \
     SLACK_DEVELOPER_INCOMING_WEBHOOK, SLACK_DEVELOPER_OPPORTUNITIES_CHANNEL, MEDIA_ROOT, SLACK_STAFF_TOKEN, \
-    SLACK_STAFF_REPORTS_CHANNEL
+    SLACK_STAFF_REPORTS_CHANNEL, SLACK_STAFF_PLATFORM_ALERTS
 from tunga_projects.models import Project, ProgressReport, ProgressEvent, InterestPoll
 from tunga_projects.utils import weekly_project_report, weekly_payment_report
 from tunga_utils import slack_utils
@@ -113,11 +114,13 @@ def create_progress_report_slack_message(progress_report, updated=False, to_clie
     is_pm_report = progress_report.event.type in [PROGRESS_EVENT_PM, PROGRESS_EVENT_INTERNAL] or \
                    (progress_report.event.type == PROGRESS_EVENT_MILESTONE and progress_report.user.is_project_manager)
     is_client_report = progress_report.event.type == PROGRESS_EVENT_CLIENT or \
-                       (progress_report.event.type == PROGRESS_EVENT_MILESTONE and progress_report.user.is_project_owner)
+                       (
+                           progress_report.event.type == PROGRESS_EVENT_MILESTONE and progress_report.user.is_project_owner)
     is_pm_or_client_report = is_pm_report or is_client_report
     is_dev_report = not is_pm_or_client_report
 
-    report_url = '{}/projects/{}/events/{}/'.format(TUNGA_URL, progress_report.event.project_id, progress_report.event_id)
+    report_url = '{}/projects/{}/events/{}/'.format(TUNGA_URL, progress_report.event.project_id,
+                                                    progress_report.event_id)
     slack_msg = "{} {} a {} | {}".format(
         progress_report.user.display_name.encode('utf-8'),
         updated and 'updated' or 'submitted',
@@ -302,7 +305,8 @@ def notify_new_progress_report_slack(progress_report, updated=False):
     is_pm_report = progress_report.event.type in [PROGRESS_EVENT_PM, PROGRESS_EVENT_INTERNAL] or \
                    (progress_report.event.type == PROGRESS_EVENT_MILESTONE and progress_report.user.is_project_manager)
     is_client_report = progress_report.event.type == PROGRESS_EVENT_CLIENT or \
-                       (progress_report.event.type == PROGRESS_EVENT_MILESTONE and progress_report.user.is_project_owner)
+                       (
+                           progress_report.event.type == PROGRESS_EVENT_MILESTONE and progress_report.user.is_project_owner)
     is_pm_or_client_report = is_pm_report or is_client_report
     is_dev_report = not is_pm_or_client_report
 
@@ -457,4 +461,24 @@ def notify_weekly_payment_report_slack():
     slack_utils.upload_file(
         SLACK_STAFF_TOKEN, SLACK_STAFF_REPORTS_CHANNEL, filepath, filename=filename,
         initial_comment='<!channel> *Payment updates* for *week {}*'.format(today.isocalendar()[1])
+    )
+
+
+@job
+def notify_new_user_signup_on_platform(user):
+    instance = clean_instance(user, get_user_model())
+
+    slack_msg = '<{}|{}> has joined Tunga'.format(
+        '{}/network/{}'.format(TUNGA_URL, instance.user.username),
+        instance.user.display_name,
+    )
+
+    slack_utils.send_incoming_webhook(
+        SLACK_STAFF_INCOMING_WEBHOOK,
+
+        {
+
+            slack_utils.KEY_TEXT: slack_msg,
+            slack_utils.KEY_CHANNEL: SLACK_STAFF_PLATFORM_ALERTS
+        }
     )
