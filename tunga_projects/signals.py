@@ -27,7 +27,9 @@ def activity_handler_new_full_project(sender, instance, created, **kwargs):
             if instance.stage == PROJECT_STAGE_OPPORTUNITY:
                 manage_interest_polls(instance.id, remind=False)
 
-        sync_hubspot_deal.delay(instance.id)
+        if instance.stage != PROJECT_STAGE_OPPORTUNITY:
+            # Don't sync opportunities to HubSpot
+            sync_hubspot_deal.delay(instance.id)
 
 
 @receiver(post_field_update, sender=Project)
