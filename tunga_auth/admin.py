@@ -18,7 +18,7 @@ class TungaUserAdmin(UserAdmin):
     form = TungaUserChangeForm
     add_form = TungaUserCreationForm
     actions = UserAdmin.actions + ['make_pending', 'make_not_pending', 'download_csv']
-    search_fields = ('first_name', 'last_name', 'email')
+    search_fields = ('first_name', 'last_name', 'email', 'invoice_email')
 
     fieldsets = UserAdmin.fieldsets + (
         (_('Profile'), {'fields': ('type', 'image', 'is_internal', 'can_pay', 'verified', 'pending')}),
@@ -30,7 +30,7 @@ class TungaUserAdmin(UserAdmin):
     )
 
     list_display = (
-        'username', 'email', 'first_name', 'last_name',
+        'username', 'email', 'first_name', 'last_name', 'invoice_email',
         'is_staff', 'is_internal', 'can_pay', 'type', 'source', 'pending', 'verified', 'date_joined'
     )
     list_filter = ('date_joined', 'type', 'pending', 'is_staff', 'is_superuser', 'is_internal', 'payoneer_status')
