@@ -73,7 +73,15 @@ def weekly_payment_report(render_format='pdf', weeks_ago=0):
     week_start = (today - datetime.timedelta(days=today.weekday(), weeks=weeks_ago)).replace(hour=0, minute=0, second=0, microsecond=0)
     week_end = (week_start + datetime.timedelta(days=6)).replace(hour=23, minute=59, second=59, microsecond=999999)
 
-    upcoming_this_week = Invoice.objects.filter(
+    non_legacy_invoices = Invoice.objects.exclude(
+        Q(project__owner__email='domieck@tunga.io') |
+        (
+            Q(project__owner__isnull=True) &
+            Q(project__user__email='domieck@tunga.io')
+        )
+    )
+
+    upcoming_this_week = non_legacy_invoices.filter(
         type=INVOICE_TYPE_SALE,
         paid=False,
         issued_at__gte=week_start - datetime.timedelta(days=14),
@@ -81,14 +89,14 @@ def weekly_payment_report(render_format='pdf', weeks_ago=0):
         # Client invoices are due 14 days after the issue date
     ).order_by('issued_at')
 
-    paid_last_week = Invoice.objects.filter(
+    paid_last_week = non_legacy_invoices.filter(
         type=INVOICE_TYPE_SALE,
         paid=True,
         paid_at__gte=week_start - datetime.timedelta(days=7),
         paid_at__lte=week_end - datetime.timedelta(days=7),
     ).order_by('paid_at')
 
-    overdue = Invoice.objects.filter(
+    overdue = non_legacy_invoices.filter(
         type=INVOICE_TYPE_SALE,
         paid=False,
         issued_at__lte=week_start - datetime.timedelta(days=14),

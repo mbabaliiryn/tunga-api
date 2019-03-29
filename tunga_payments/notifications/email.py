@@ -34,12 +34,17 @@ def notify_new_invoice_email_client(invoice):
 
         # only notify about non-legacy client invoices that are already due and haven't been sent yet
 
-        to = [invoice.user.email]
-        if invoice.project.owner and invoice.project.owner.email != invoice.user.email:
-            to.append(invoice.project.owner.email)
+        invoice_user_email = invoice.user.invoice_email or invoice.user.email
+        to = [invoice_user_email]
+        if invoice.project.owner:
+            invoice_owner_email = invoice.project.owner.invoice_email or invoice.project.owner.email
+            if invoice_owner_email != invoice_user_email:
+                to.append(invoice_owner_email)
 
-        if invoice.project.user and invoice.project.user.email != invoice.user.email:
-            to.append(invoice.project.user.email)
+        if invoice.project.user:
+            project_user_email = invoice.project.user.invoice_email or invoice.project.user.email
+            if project_user_email != invoice_user_email:
+                to.append(project_user_email)
 
         payment_link = '{}/projects/{}/pay'.format(TUNGA_URL, invoice.project.id)
 
@@ -77,12 +82,17 @@ def notify_updated_invoice_email_client(invoice):
         invoice.issued_at <= today_end and invoice.last_sent_at and not invoice.paid:
         # only notify updates to non-legacy client invoices that are already due and have been sent before
 
-        to = [invoice.user.email]
-        if invoice.project.owner and invoice.project.owner.email != invoice.user.email:
-            to.append(invoice.project.owner.email)
+        invoice_user_email = invoice.user.invoice_email or invoice.user.email
+        to = [invoice_user_email]
+        if invoice.project.owner:
+            invoice_owner_email = invoice.project.owner.invoice_email or invoice.project.owner.email
+            if invoice_owner_email != invoice_user_email:
+                to.append(invoice_owner_email)
 
-        if invoice.project.user and invoice.project.user.email != invoice.user.email:
-            to.append(invoice.project.user.email)
+        if invoice.project.user:
+            project_user_email = invoice.project.user.invoice_email or invoice.project.user.email
+            if project_user_email != invoice_user_email:
+                to.append(project_user_email)
 
         payment_link = '{}/projects/{}/pay'.format(TUNGA_URL, invoice.project.id)
 
