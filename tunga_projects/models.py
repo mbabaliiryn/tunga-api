@@ -479,3 +479,18 @@ class ProjectMeta(models.Model):
     class Meta:
         ordering = ['created_at']
         unique_together = ('project', 'meta_key')
+
+
+@python_2_unicode_compatible
+class ProjectEmail(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    subject = models.CharField(max_length=255, null=True, blank=True)
+    body = models.TextField(null=True, blank=True)
+    sender = models.EmailField(null=True, blank=True)
+    receiver = models.EmailField(null=True, blank=True)
+    emails_in_copy = models.CharField(max_length=255, null=True, blank=True)
+
+    def __str__(self):
+        return '{} | {} - {}'.format(self.project, '', '')
