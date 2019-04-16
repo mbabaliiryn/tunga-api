@@ -10,10 +10,11 @@ from rest_framework.viewsets import ModelViewSet
 
 from tunga_projects.filterbackends import ProjectFilterBackend
 from tunga_projects.filters import ProjectFilter, DocumentFilter, ParticipationFilter, ProgressEventFilter, \
-    ProgressReportFilter, InterestPollFilter
-from tunga_projects.models import Project, Document, Participation, ProgressEvent, ProgressReport, InterestPoll
+    ProgressReportFilter, InterestPollFilter, ProjectEmailFilter
+from tunga_projects.models import Project, Document, Participation, ProgressEvent, ProgressReport, InterestPoll, \
+    ProjectEmail
 from tunga_projects.serializers import ProjectSerializer, DocumentSerializer, ParticipationSerializer, \
-    ProgressEventSerializer, ProgressReportSerializer, InterestPollSerializer
+    ProgressEventSerializer, ProgressReportSerializer, InterestPollSerializer, ProjectEmailSerializer
 from tunga_projects.tasks import manage_interest_polls
 from tunga_utils.filterbackends import DEFAULT_FILTER_BACKENDS
 
@@ -98,4 +99,15 @@ class ProgressReportViewSet(ModelViewSet):
     serializer_class = ProgressReportSerializer
     permission_classes = [IsAuthenticated, DRYObjectPermissions]
     filter_class = ProgressReportFilter
+    filter_backends = DEFAULT_FILTER_BACKENDS
+
+
+class ProgressEmailViewSet(ModelViewSet):
+    """
+    Progress Email Resource
+    """
+    queryset = ProjectEmail.objects.all()
+    serializer_class = ProjectEmailSerializer
+    permission_classes = [IsAuthenticated, DRYObjectPermissions]
+    filter_class = ProjectEmailFilter
     filter_backends = DEFAULT_FILTER_BACKENDS

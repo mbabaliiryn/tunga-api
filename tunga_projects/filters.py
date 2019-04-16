@@ -1,7 +1,8 @@
 import django_filters
 from django.db.models import Q
 
-from tunga_projects.models import Project, Document, Participation, ProgressEvent, ProgressReport, InterestPoll
+from tunga_projects.models import Project, Document, Participation, ProgressEvent, ProgressReport, InterestPoll, \
+    ProjectEmail
 from tunga_utils.filters import GenericDateFilterSet
 
 
@@ -22,7 +23,6 @@ class ProjectFilter(GenericDateFilterSet):
 
 
 class ParticipationFilter(GenericDateFilterSet):
-
     class Meta:
         model = Participation
         fields = (
@@ -31,7 +31,6 @@ class ParticipationFilter(GenericDateFilterSet):
 
 
 class InterestPollFilter(GenericDateFilterSet):
-
     class Meta:
         model = InterestPoll
         fields = (
@@ -40,7 +39,6 @@ class InterestPollFilter(GenericDateFilterSet):
 
 
 class DocumentFilter(GenericDateFilterSet):
-
     class Meta:
         model = Document
         fields = (
@@ -48,8 +46,15 @@ class DocumentFilter(GenericDateFilterSet):
         )
 
 
-class ProgressEventFilter(GenericDateFilterSet):
+class ProjectEmailFilter(GenericDateFilterSet):
+    class Meta:
+        model = ProjectEmail
+        fields = (
+            'project', 'created_by'
+        )
 
+
+class ProgressEventFilter(GenericDateFilterSet):
     class Meta:
         model = ProgressEvent
         fields = (

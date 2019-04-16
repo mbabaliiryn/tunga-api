@@ -3,7 +3,7 @@ from rest_framework.exceptions import ValidationError
 
 from tunga_activity.models import FieldChangeLog
 from tunga_projects.models import Project, Participation, Document, ProgressEvent, ProjectMeta, ProgressReport, \
-    InterestPoll
+    InterestPoll, ProjectEmail
 from tunga_utils.constants import PROGRESS_REPORT_STATUS_CHOICES, PROGRESS_REPORT_STATUS_STUCK, \
     PROGRESS_REPORT_STUCK_REASON_CHOICES, PROGRESS_REPORT_STATUS_BEHIND_AND_STUCK
 from tunga_utils.mixins import GetCurrentUserAnnotatedSerializerMixin
@@ -208,6 +208,16 @@ class ProgressEventSerializer(NestedModelSerializer, ContentTypeAnnotatedModelSe
         if data is not None:
             for item in data:
                 FieldChangeLog.objects.create(content_object=instance, created_by=self.get_current_user(), **item)
+
+
+class ProjectEmailSerializer(NestedModelSerializer, ContentTypeAnnotatedModelSerializer):
+    created_by = SimplestUserSerializer(required=False, read_only=True, default=CreateOnlyCurrentUserDefault())
+    project = SimpleProjectSerializer()
+
+    class Meta:
+        model = ProjectEmail
+        fields = '__all__'
+        read_only_fields = ('created_at', 'updated_at')
 
 
 class ProgressReportSerializer(NestedModelSerializer, ContentTypeAnnotatedModelSerializer,

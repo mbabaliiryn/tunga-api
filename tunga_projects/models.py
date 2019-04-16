@@ -486,6 +486,7 @@ class ProjectEmail(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL)
     subject = models.CharField(max_length=255, null=True, blank=True)
     body = models.TextField(null=True, blank=True)
     sender = models.EmailField(null=True, blank=True)

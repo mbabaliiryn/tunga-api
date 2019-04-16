@@ -31,16 +31,13 @@ from tunga_comments.views import CommentViewSet
 from tunga_messages.views import MessageViewSet, ChannelViewSet, slack_customer_notification
 from tunga_pages.views import SkillPageViewSet, SkillPagesSitemap, BlogPostViewSet, BlogSitemap
 from tunga_payments.views import InvoiceViewSet, PaymentViewSet
-from tunga_profiles.views import ProfileView, EducationViewSet, WorkViewSet, ConnectionViewSet, \
-    NotificationView, CountryListView, DeveloperApplicationViewSet, RepoListView, IssueListView, SlackIntegrationView, \
+from tunga_profiles.views import ProfileView, EducationViewSet, WorkViewSet, NotificationView, CountryListView, \
+    DeveloperApplicationViewSet, RepoListView, IssueListView, SlackIntegrationView, \
     DeveloperInvitationViewSet, CompanyView, WhitePaperVisitorsView
 from tunga_projects.views import ProjectViewSet, DocumentViewSet, ParticipationViewSet, ProgressEventViewSet, \
-    ProgressReportViewSet, InterestPollViewSet
+    ProgressReportViewSet, InterestPollViewSet, ProgressEmailViewSet
 from tunga_settings.views import UserSettingsView
-from tunga_support.views import SupportPageViewSet, SupportSectionViewSet
-from tunga_tasks.views import TimeEntryViewSet, \
-    coinbase_notification, bitpesa_notification, EstimateViewSet, QuoteViewSet, MultiTaskPaymentKeyViewSet, \
-    TaskPaymentViewSet, ParticipantPaymentViewSet, SkillsApprovalViewSet, SprintViewSet, TaskDocumentViewSet, TaskViewSet
+from tunga_tasks.views import coinbase_notification, bitpesa_notification, TaskViewSet
 from tunga_uploads.views import UploadViewSet
 from tunga_utils.views import SkillViewSet, ContactRequestView, get_medium_posts, get_oembed_details, upload_file, \
     find_by_legacy_id, InviteRequestView, weekly_report, hubspot_notification, calendly_notification, search_logger
@@ -60,6 +57,7 @@ router.register(r'participation', ParticipationViewSet)
 router.register(r'interest-polls', InterestPollViewSet)
 router.register(r'progress-events', ProgressEventViewSet)
 router.register(r'progress-reports', ProgressReportViewSet)
+router.register(r'progress-emails', ProgressEmailViewSet)
 router.register(r'invoices', InvoiceViewSet)
 router.register(r'payments', PaymentViewSet)
 router.register(r'activity', ActionViewSet)
