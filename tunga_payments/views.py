@@ -30,7 +30,8 @@ from tunga_payments.serializers import InvoiceSerializer, PaymentSerializer, Str
     BulkInvoiceSerializer
 from tunga_tasks.renderers import PDFRenderer
 from tunga_utils import stripe_utils
-from tunga_utils.constants import PAYMENT_METHOD_STRIPE, CURRENCY_EUR, STATUS_COMPLETED, INVOICE_TYPE_CREDIT_NOTA
+from tunga_utils.constants import PAYMENT_METHOD_STRIPE, CURRENCY_EUR, STATUS_COMPLETED, INVOICE_TYPE_CREDIT_NOTA, \
+    INVOICE_TYPE_PURCHASE
 from tunga_utils.filterbackends import DEFAULT_FILTER_BACKENDS
 
 
@@ -52,7 +53,10 @@ class InvoiceViewSet(ModelViewSet):
         for list_invoices in request.data:
             serializer = InvoiceSerializer(data=list_invoices, context={'request': request})
             if serializer.is_valid():
-                serializer.save(batch_ref=group_batch_ref)
+                invoice = serializer.save(batch_ref=group_batch_ref)
+                if invoice.type == INVOICE_TYPE_PURCHASE:
+                    invoice.generate_invoice_number()
+                    invoice.save()
         results = Invoice.objects.filter(batch_ref=group_batch_ref)
         output_serializer = InvoiceSerializer(results, many=True)
         data = output_serializer.data[:]

@@ -19,7 +19,7 @@ class Command(BaseCommand):
 
         invoices = Invoice.objects.filter(
             type=INVOICE_TYPE_SALE, paid=False, issued_at__lte=today_end,
-            last_sent_at__isnull=True, legacy_id__isnull=True
+            last_sent_at__isnull=True, legacy_id__isnull=True, finalized=True
         )
         for invoice in invoices:
             notify_new_invoice_email_client.delay(invoice.id)
