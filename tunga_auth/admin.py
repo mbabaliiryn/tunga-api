@@ -26,7 +26,7 @@ class TungaUserAdmin(UserAdmin):
 
     add_fieldsets = UserAdmin.add_fieldsets + (
         (_('Account Type'), {'fields': ('is_superuser', 'is_staff', 'type', 'source')}),
-        (_('Profile'), {'fields': ('email', 'first_name', 'last_name')})
+        (_('Profile'), {'fields': ('email', 'first_name', 'last_name', 'invoice_email')})
     )
 
     list_display = (
