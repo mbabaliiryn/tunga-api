@@ -16,7 +16,7 @@ Including another URLconf
 from allauth.account.views import ConfirmEmailView
 from django.conf.urls import url, include
 from django.contrib import admin
-from django.contrib.auth.views import password_reset_confirm
+from django.contrib.auth.views import PasswordResetConfirmView
 from django.contrib.sitemaps.views import sitemap
 from rest_auth.views import UserDetailsView
 from rest_framework.routers import DefaultRouter
@@ -153,7 +153,7 @@ urlpatterns = [
     url(r'^api/payoneer/ipcn/callback/', payoneer_notification, name="payoneer-ipcn-status"),
     url(r'^api/payoneer/', payoneer_sign_up, name="payoneer"),
     url(r'^reset-password/confirm/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
-        password_reset_confirm, name='password_reset_confirm'),
+        PasswordResetConfirmView.as_view() ,name='password_reset_confirm'),
     url(r'^api/migrate/(?P<model>\w+)/(?P<pk>\d+)/$', find_by_legacy_id, name="migrate"),
     url(r'^api/weekly-report/(?P<subject>\w+)/$', weekly_report, name="weekly-report"),
     url(r'^$', router.get_api_root_view(), name='backend-root'),

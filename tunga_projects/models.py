@@ -135,7 +135,7 @@ class Participation(models.Model):
         default=STATUS_INITIAL
     )
     updates_enabled = models.BooleanField(default=True)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='project_participants_added')
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='project_participants_added', on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     responded_at = models.DateTimeField(blank=True, null=True)
@@ -201,7 +201,7 @@ class InterestPoll(models.Model):
         help_text=','.join(['%s - %s' % (item[0], item[1]) for item in REQUEST_STATUS_CHOICES]),
         default=STATUS_INITIAL
     )
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='project_interest_polls_created')
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='project_interest_polls_created', on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     responded_at = models.DateTimeField(blank=True, null=True)
@@ -249,13 +249,13 @@ class InterestPoll(models.Model):
 
 @python_2_unicode_compatible
 class Document(models.Model):
-    project = models.ForeignKey(Project)
+    project = models.ForeignKey(Project, on_delete=models.PROTECT)
     type = models.CharField(choices=PROJECT_DOCUMENT_CHOICES, max_length=30, default=DOC_OTHER)
     url = models.URLField(blank=True, null=True)
     file = models.FileField(verbose_name='Upload', upload_to='documents/%Y/%m/%d', blank=True, null=True)
     title = models.CharField(max_length=100, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -309,7 +309,7 @@ class ProgressEvent(models.Model):
     last_reminder_at = models.DateTimeField(blank=True, null=True)
     missed_notification_at = models.DateTimeField(blank=True, null=True)
     created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, related_name='progress_events_created', blank=True, null=True
+        settings.AUTH_USER_MODEL, related_name='progress_events_created', blank=True, null=True, on_delete=models.PROTECT
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

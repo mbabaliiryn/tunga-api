@@ -23,7 +23,7 @@ class SupportSection(models.Model):
         max_length=20, choices=VISIBILITY_CHOICES, default=VISIBILITY_ALL,
         help_text=', '.join(['%s - %s' % (item[0], item[1]) for item in VISIBILITY_CHOICES])
     )
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='support_sections_created')
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='support_sections_created', on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -57,7 +57,7 @@ class SupportPage(models.Model):
         help_text=', '.join(['%s - %s' % (item[0], item[1]) for item in VISIBILITY_CHOICES])
     )
     tags = tagulous.models.TagField(to=SupportTag, blank=True)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='support_pages_created')
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='support_pages_created', on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

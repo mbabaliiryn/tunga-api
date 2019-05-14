@@ -56,7 +56,7 @@ class UserSetting(models.Model):
 
 # @python_2_unicode_compatible
 class UserSwitchSetting(UserSetting):
-    setting = models.ForeignKey(SwitchSetting)
+    setting = models.ForeignKey(SwitchSetting, on_delete=models.PROTECT)
     value = models.BooleanField()
 
     class Meta:
@@ -65,7 +65,7 @@ class UserSwitchSetting(UserSetting):
 
 # @python_2_unicode_compatible
 class UserVisibilitySetting(UserSetting):
-    setting = models.ForeignKey(VisibilitySetting)
+    setting = models.ForeignKey(VisibilitySetting,on_delete=models.PROTECT)
     value = models.PositiveSmallIntegerField(choices=VISIBILITY_CHOICES)
 
     class Meta:
