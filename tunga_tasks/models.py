@@ -133,7 +133,7 @@ TASK_TYPE_CHOICES = (
 )
 
 TASK_SCOPE_CHOICES = (
-    (TASK_SCOPE_TASK, 'Task'),
+    (TASK_SCOPE_TASK, 'Task', ),
     (TASK_SCOPE_PROJECT, 'Project'),
     (TASK_SCOPE_ONGOING, 'Ongoing')
 )
@@ -1033,7 +1033,7 @@ class Participation(models.Model):
     updates_enabled = models.BooleanField(default=True)
     paid = models.BooleanField(default=False)
     satisfaction = models.SmallIntegerField(blank=True, null=True)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='participants_added')
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='participants_added', on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
     activated_at = models.DateTimeField(blank=True, null=True)
     pause_updates_until = models.DateTimeField(blank=True, null=True)
@@ -1332,7 +1332,7 @@ class ProgressEvent(models.Model):
     title = models.CharField(max_length=200, blank=True, null=True)
     description = models.CharField(max_length=1000, blank=True, null=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='legacy_progress_events_created', blank=True,
-                                   null=True)
+                                   null=True, on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
     last_reminder_at = models.DateTimeField(blank=True, null=True)
     missed_notification_at = models.DateTimeField(blank=True, null=True)
@@ -1599,7 +1599,8 @@ class Integration(models.Model):
     )
     events = models.ManyToManyField(IntegrationEvent, related_name='integrations')
     secret = models.CharField(max_length=30, default=get_random_string)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='integrations_created', blank=True, null=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='integrations_created', blank=True, null=True, on_delete=models.PROTECT
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -1724,7 +1725,7 @@ class IntegrationMeta(models.Model):
 @python_2_unicode_compatible
 class IntegrationActivity(models.Model):
     integration = models.ForeignKey(Integration, on_delete=models.CASCADE, related_name='activities')
-    event = models.ForeignKey(IntegrationEvent, related_name='integration_activities')
+    event = models.ForeignKey(IntegrationEvent, related_name='integration_activities', on_delete=models.PROTECT)
     action = models.CharField(max_length=30, blank=True, null=True)
     url = models.URLField(blank=True, null=True)
     ref = models.CharField(max_length=30, blank=True, null=True)
@@ -1754,8 +1755,9 @@ TASK_PAYMENT_TYPE_CHOICES = (
 
 @python_2_unicode_compatible
 class TaskPayment(models.Model):
-    task = models.ForeignKey(Task, blank=True, null=True)
-    multi_pay_key = models.ForeignKey(MultiTaskPaymentKey, blank=True, null=True)
+    task = models.ForeignKey(Task, blank=True, null=True, on_delete=models.PROTECT)
+    multi_pay_key = models.ForeignKey(MultiTaskPaymentKey, blank=True, null=True, on_delete=models.PROTECT
+    )
     ref = models.CharField(max_length=255)
     payment_type = models.CharField(
         max_length=30, choices=TASK_PAYMENT_TYPE_CHOICES,
@@ -1823,8 +1825,8 @@ PAYMENT_STATUS_CHOICES = (
 
 @python_2_unicode_compatible
 class ParticipantPayment(models.Model):
-    participant = models.ForeignKey(Participation)
-    source = models.ForeignKey(TaskPayment)
+    participant = models.ForeignKey(Participation, on_delete=models.PROTECT)
+    source = models.ForeignKey(TaskPayment, on_delete=models.PROTECT)
     destination = models.CharField(max_length=40, validators=[validate_btc_address], blank=True, null=True)
     idem_key = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     ref = models.CharField(max_length=255, blank=True, null=True)
@@ -1854,14 +1856,14 @@ class ParticipantPayment(models.Model):
 
 @python_2_unicode_compatible
 class TaskInvoice(models.Model):
-    task = models.ForeignKey(Task)
+    task = models.ForeignKey(Task, on_delete=models.PROTECT)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, related_name='task_invoices_created', on_delete=models.DO_NOTHING, blank=True, null=True
     )
     title = models.CharField(max_length=200)
     fee = models.DecimalField(max_digits=19, decimal_places=4)
-    client = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='client_invoices')
-    developer = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='developer_invoices', blank=True, null=True)
+    client = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='client_invoices', on_delete=models.PROTECT)
+    developer = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='developer_invoices', blank=True, null=True, on_delete=models.PROTECT)
     currency = models.CharField(max_length=5, choices=CURRENCY_CHOICES, default=CURRENCY_CHOICES[0][0])
     payment_method = models.CharField(
         max_length=30, choices=TASK_PAYMENT_METHOD_CHOICES,
@@ -2102,7 +2104,7 @@ APPROVED_WITH_CHOICES = (
 
 @python_2_unicode_compatible
 class SkillsApproval(models.Model):
-    participant = models.ForeignKey(Participation)
+    participant = models.ForeignKey(Participation, on_delete=models.PROTECT)
     approved_with = models.IntegerField(
         choices=APPROVED_WITH_CHOICES,
         help_text=','.join(['%s - %s' % (item[0], item[1]) for item in APPROVED_WITH_CHOICES])
@@ -2145,12 +2147,12 @@ TASK_DOCUMENT_CHOICES = (
 
 @python_2_unicode_compatible
 class TaskDocument(models.Model):
-    task = models.ForeignKey(Task)
+    task = models.ForeignKey(Task, on_delete=models.PROTECT)
     file = models.FileField(verbose_name='Upload', upload_to='documents/%Y/%m/%d')
     file_type = models.CharField(choices=TASK_DOCUMENT_CHOICES, max_length=30)
     description = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
 
     def __str__(self):
         return '{} - {} - {}'.format(self.file_type, self.task, self.file.name)

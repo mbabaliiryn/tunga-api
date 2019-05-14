@@ -296,6 +296,11 @@ OAUTH2_PROVIDER = {
     'ACCESS_TOKEN_EXPIRE_SECONDS': 120 * 24 * 60 * 60  # 120 days
 }
 
+
+
+
+
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
