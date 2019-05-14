@@ -27,7 +27,8 @@ python manage.py tunga_scheduler
 1. run this command from project root
 ```
 python manage.py test
-```
+
+``
 
 # Documentation
 API Documentation is generated automatically at http://127.0.0.1:8000/api/docs/ using [Django REST Swagger](https://github.com/marcgibbons/django-rest-swagger)
@@ -51,4 +52,4 @@ cd .ansible
 ansible-playbook deploy.yml -i env/prod
 ```
 
-
+connect github repo to slack
