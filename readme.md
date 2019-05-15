@@ -51,5 +51,4 @@ ansible-playbook deploy.yml -i env/sandbox
 cd .ansible
 ansible-playbook deploy.yml -i env/prod
 ```
-
-connect github repo to slack
+Intergration of github with slack
