@@ -51,4 +51,4 @@ ansible-playbook deploy.yml -i env/sandbox
 cd .ansible
 ansible-playbook deploy.yml -i env/prod
 ```
-slack and github intergration
+added webhook
