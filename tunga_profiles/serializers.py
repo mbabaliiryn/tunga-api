@@ -12,6 +12,7 @@ from tunga_utils.serializers import CreateOnlyCurrentUserDefault, AbstractExperi
     SimpleSkillSerializer, NestedModelSerializer, ContentTypeAnnotatedModelSerializer
 from tunga_utils.validators import is_business_email
 
+
 class ProfileSerializer(NestedModelSerializer, ContentTypeAnnotatedModelSerializer):
     user = SimplestUserSerializer(required=False)
     city = serializers.CharField(required=False, allow_blank=True, allow_null=True)
@@ -105,13 +106,11 @@ class CompanySerializer(NestedModelSerializer, ContentTypeAnnotatedModelSerializ
 
 
 class EducationSerializer(AbstractExperienceSerializer):
-
     class Meta(AbstractExperienceSerializer.Meta):
         model = Education
 
 
 class WorkSerializer(AbstractExperienceSerializer):
-
     class Meta(AbstractExperienceSerializer.Meta):
         model = Work
 
@@ -134,8 +133,10 @@ class DeveloperApplicationSerializer(serializers.ModelSerializer):
 
 
 class DeveloperInvitationSerializer(serializers.ModelSerializer):
-    created_by = serializers.PrimaryKeyRelatedField(required=False, read_only=True, default=CreateOnlyCurrentUserDefault())
+    created_by = serializers.PrimaryKeyRelatedField(required=False, read_only=True,
+                                                    default=CreateOnlyCurrentUserDefault())
     display_name = serializers.CharField(required=False, read_only=True)
+
     # resend = serializers.BooleanField(required=False, write_only=True, default=False)
 
     class Meta:
@@ -176,8 +177,7 @@ class DeveloperInvitationSerializer(serializers.ModelSerializer):
 class WhitePaperVisitorsSerializer(serializers.ModelSerializer):
     class Meta:
         model = WhitePaperUser
-        fields = ('first_name', 'last_name', 'company', 'phone_number', 'country', 'email')
-
+        fields = ('first_name', 'last_name', 'company', 'phone_number', 'country', 'email', 'paper')
 
     def validate_emaill(self, email):
         if is_business_email(email):
