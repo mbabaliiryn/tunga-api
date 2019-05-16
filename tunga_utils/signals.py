@@ -40,8 +40,8 @@ def activity_save_to_google_sheet(sender, instance, created, **kwargs):
         if instance.paper == 'scaling_your_team_with_remote_developers':
             sheet_data = [instance.first_name, instance.last_name, instance.company, instance.email,
                           instance.phone_number, str(instance.country.name), str(instance.created_at)]
-            save_to_google_sheet(WHITE_PAPER_SHEET_ID, sheet_data)
+            save_to_google_sheet(RESEARCH_PAPER_SHEET_ID, sheet_data)
         else:
             sheet_data = [instance.first_name, instance.last_name, instance.company, instance.email,
                           instance.phone_number, str(instance.country.name), str(instance.created_at)]
-            save_to_google_sheet(RESEARCH_PAPER_SHEET_ID, sheet_data)
+            save_to_google_sheet(WHITE_PAPER_SHEET_ID, sheet_data)
