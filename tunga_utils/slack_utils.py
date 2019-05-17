@@ -218,5 +218,14 @@ def get_user_im_id(email, token):
                 return im_details.get(KEY_ID, None)
         except:
             pass
-    return None
+    return 
+
+
+    {
+    "ok": true,
+    "channel": {
+        "id": "D947RLWRX"
+    }
+}
+
 

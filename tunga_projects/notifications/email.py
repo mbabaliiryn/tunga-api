@@ -2,7 +2,7 @@ import datetime
 
 from django_rq import job
 
-from tunga.settings import TUNGA_URL, MANDRILL_VAR_FIRST_NAME
+from tunga.settings import TUNGA_URL, MANDRILL_VAR_FIRST_NAME 
 from tunga_projects.models import Participation, ProgressReport, ProgressEvent, InterestPoll
 from tunga_settings.slugs import NEW_TASK_PROGRESS_REPORT_EMAIL, TASK_SURVEY_REMINDER_EMAIL
 from tunga_settings.utils import check_switch_setting
