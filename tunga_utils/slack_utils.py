@@ -222,10 +222,15 @@ def get_user_im_id(email, token):
 
 
     {
-    "ok": true,
+    "ok": True,
     "channel": {
         "id": "D947RLWRX"
     }
+}
+
+{
+    "ok": False,
+    "error": "invalid_auth"
 }
 
 
