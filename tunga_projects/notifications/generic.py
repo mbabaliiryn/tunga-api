@@ -1,3 +1,4 @@
+
 from django_rq import job
 
 from tunga_projects.notifications.email import notify_new_participant_email_dev, \
