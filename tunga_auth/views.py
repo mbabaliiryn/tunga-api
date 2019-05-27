@@ -129,7 +129,7 @@ class UserViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.Lis
     """
     User Resource
     """
-    queryset = get_user_model().objects.order_by('first_name', 'last_name')
+    queryset = get_user_model().objects.filter(is_active=True).order_by('first_name', 'last_name')
     serializer_class = UserSerializer
     permission_classes = [DRYPermissions]
     lookup_url_kwarg = 'user_id'
