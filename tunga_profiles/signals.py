@@ -3,13 +3,12 @@ from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver, Signal
 
 from tunga_activity import verbs
+from tunga_profiles.models import Connection, DeveloperApplication, Skill, DeveloperInvitation, UserProfile, UserRequest
 from tunga_profiles.notifications import send_new_developer_email, send_developer_accepted_email, \
     send_developer_application_received_email, send_new_skill_email, send_developer_invited_email, \
     notify_user_profile_updated_slack, notify_user_request_slack
-from tunga_profiles.models import Connection, DeveloperApplication, Skill, DeveloperInvitation, UserProfile, UserRequest
-from tunga_utils import algolia_utils
+from tunga_profiles.tasks import sync_algolia_user
 from tunga_utils.constants import REQUEST_STATUS_ACCEPTED, STATUS_ACCEPTED, STATUS_REJECTED
-from tunga_utils.serializers import SearchUserSerializer
 from tunga_utils.signals import post_nested_save
 
 user_profile_updated = Signal(providing_args=["profile"])
@@ -18,7 +17,7 @@ user_profile_updated = Signal(providing_args=["profile"])
 @receiver(post_nested_save, sender=UserProfile)
 def activity_handler_new_profile(sender, instance, created, **kwargs):
     if instance.user and instance.user.is_developer:
-        algolia_utils.add_objects([SearchUserSerializer(instance.user).data])
+        sync_algolia_user.delay(instance.user.id)
 
 
 @receiver(post_save, sender=Connection)
