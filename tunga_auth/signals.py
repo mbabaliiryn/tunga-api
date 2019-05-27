@@ -5,12 +5,11 @@ from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
 
 from tunga_auth.models import EmailVisitor
-from tunga_auth.notifications import send_new_user_joined_email, send_new_user_password_email
+from tunga_auth.notifications import send_new_user_password_email
 from tunga_auth.tasks import sync_hubspot_contact, sync_hubspot_email
+from tunga_profiles.tasks import sync_algolia_user
 from tunga_projects.notifications.slack import notify_new_user_signup_on_platform
-from tunga_utils import algolia_utils
 from tunga_utils.constants import USER_TYPE_PROJECT_OWNER, USER_SOURCE_MANUAL
-from tunga_utils.serializers import SearchUserSerializer
 
 
 @receiver(post_save, sender=get_user_model())
@@ -28,7 +27,7 @@ def activity_handler_new_user(sender, instance, created, **kwargs):
         send_new_user_password_email.delay(instance.id)
 
         if instance.is_developer:
-            algolia_utils.add_objects([SearchUserSerializer(instance).data])
+            sync_algolia_user.delay(instance.id)
 
 
 @receiver(user_signed_up)
