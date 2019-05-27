@@ -1,8 +1,9 @@
 from django.contrib import admin
 
-from tunga_profiles.notifications import send_developer_accepted_email
 from tunga_profiles.models import Education, Work, Connection, \
-    DeveloperApplication, BTCWallet, UserProfile, AppIntegration, Inquirer, DeveloperInvitation, Skill, Company
+    DeveloperApplication, BTCWallet, UserProfile, AppIntegration, Inquirer, DeveloperInvitation, Skill, Company, \
+    WhitePaperUser
+from tunga_profiles.notifications import send_developer_accepted_email
 from tunga_utils.constants import REQUEST_STATUS_ACCEPTED, REQUEST_STATUS_REJECTED
 
 
@@ -70,17 +71,21 @@ class DeveloperApplicationAdmin(admin.ModelAdmin):
     def accept_users(self, request, queryset):
         rows_updated = queryset.update(status=REQUEST_STATUS_ACCEPTED)
         self.message_user(
-            request, "%s developer%s successfully marked as accepted." % (rows_updated, (rows_updated > 1 and 's' or '')))
+            request,
+            "%s developer%s successfully marked as accepted." % (rows_updated, (rows_updated > 1 and 's' or '')))
 
         # Send developer accepted emails manually, queryset updates do not invoke the 'post_save' signal
         for developer in queryset:
             send_developer_accepted_email.delay(developer.id)
+
     accept_users.short_description = "Accept selected developers"
 
     def reject_users(self, request, queryset):
         rows_updated = queryset.update(status=REQUEST_STATUS_REJECTED)
         self.message_user(
-            request, "%s developer%s successfully marked as rejected." % (rows_updated, (rows_updated > 1 and 's' or '')))
+            request,
+            "%s developer%s successfully marked as rejected." % (rows_updated, (rows_updated > 1 and 's' or '')))
+
     reject_users.short_description = "Reject selected developers"
 
 
@@ -99,5 +104,12 @@ class DeveloperInvitationAdmin(admin.ModelAdmin):
 @admin.register(Inquirer)
 class InquirerAdmin(admin.ModelAdmin):
     list_display = ('name', 'email', 'created_at')
+    list_filter = ('created_at',)
+    search_fields = ('name', 'email')
+
+
+@admin.register(WhitePaperUser)
+class WhitePaperUserAdmin(admin.ModelAdmin):
+    list_display = ('first_name', 'last_name', 'email', 'created_at')
     list_filter = ('created_at',)
     search_fields = ('name', 'email')
