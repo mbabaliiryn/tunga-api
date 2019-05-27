@@ -5,11 +5,11 @@ from django.contrib.auth import get_user_model
 from django.template.defaultfilters import floatformat
 from django_rq import job
 
-from tunga.settings import TUNGA_URL, SLACK_STAFF_INCOMING_WEBHOOK, SLACK_STAFF_LEADS_CHANNEL, \
-    SLACK_ATTACHMENT_COLOR_TUNGA, SLACK_ATTACHMENT_COLOR_GREEN, SLACK_STAFF_UPDATES_CHANNEL, SLACK_ATTACHMENT_COLOR_RED, \
-    SLACK_ATTACHMENT_COLOR_NEUTRAL, SLACK_ATTACHMENT_COLOR_BLUE, SLACK_STAFF_MISSED_UPDATES_CHANNEL, \
-    SLACK_DEVELOPER_INCOMING_WEBHOOK, SLACK_DEVELOPER_OPPORTUNITIES_CHANNEL, MEDIA_ROOT, SLACK_STAFF_TOKEN, \
-    SLACK_STAFF_REPORTS_CHANNEL, SLACK_STAFF_PLATFORM_ALERTS
+from tunga.settings import (TUNGA_URL, SLACK_STAFF_INCOMING_WEBHOOK, SLACK_STAFF_LEADS_CHANNEL, 
+    SLACK_ATTACHMENT_COLOR_TUNGA, SLACK_ATTACHMENT_COLOR_GREEN, SLACK_STAFF_UPDATES_CHANNEL, SLACK_ATTACHMENT_COLOR_RED, 
+    SLACK_ATTACHMENT_COLOR_NEUTRAL, SLACK_ATTACHMENT_COLOR_BLUE, SLACK_STAFF_MISSED_UPDATES_CHANNEL, 
+    SLACK_DEVELOPER_INCOMING_WEBHOOK, SLACK_DEVELOPER_OPPORTUNITIES_CHANNEL, MEDIA_ROOT, SLACK_STAFF_TOKEN ,                                                                 
+    SLACK_STAFF_REPORTS_CHANNEL, SLACK_STAFF_PLATFORM_ALERTS)
 from tunga_projects.models import Project, ProgressReport, ProgressEvent, InterestPoll
 from tunga_projects.utils import weekly_project_report, weekly_payment_report
 from tunga_utils import slack_utils
@@ -296,6 +296,7 @@ def create_progress_report_slack_message(progress_report, updated=False, to_clie
         })
 
     return slack_msg, attachments
+
 
 
 @job

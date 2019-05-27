@@ -223,8 +223,8 @@ def get_user_im_id(email, token):
 
     {
     "ok": True,
-    "channel": {
-        "id": "D947RLWRX"
+    "direct message": {
+    "id": "D947RLWRX"
     }
 }
 
@@ -232,5 +232,7 @@ def get_user_im_id(email, token):
     "ok": False,
     "error": "invalid_auth"
 }
+
+
 
 
