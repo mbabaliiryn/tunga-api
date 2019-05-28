@@ -441,6 +441,6 @@ class WhitePaperVisitorsView(views.APIView):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({'download_url': settings.WHITE_PAPER_DOWNLOAD_URL}, status=status.HTTP_201_CREATED)
+            return Response({'download_url': settings.RESEARCH_PAPER_DOWNLOAD_URL}, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

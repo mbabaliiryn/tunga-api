@@ -6,7 +6,7 @@ from tunga_payments.notifications.slack import notify_invoice_slack_admin, notif
 
 @job
 def notify_invoice(invoice, updated=False):
-    notify_invoice_email(invoice, updated=updated)
+    # notify_invoice_email(invoice, updated=updated)
     notify_invoice_slack_admin(invoice, updated=updated)
 
 

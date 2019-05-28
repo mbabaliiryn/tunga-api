@@ -488,6 +488,11 @@ class UserRequest(models.Model):
 
 @python_2_unicode_compatible
 class WhitePaperUser(models.Model):
+    white_paper_choices = (
+        ('best_african_countries_for_outsourcing', 'best_african_countries_for_outsourcing'),
+        ('scaling_your_team_with_remote_developers', 'scaling_your_team_with_remote_developers')
+    )
+    paper = models.CharField(max_length=255, choices=white_paper_choices)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     company = models.CharField(max_length=100)
