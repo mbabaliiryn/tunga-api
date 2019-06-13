@@ -45,6 +45,7 @@ class APIInvoiceTestCase(APITestCase):
             type=TASK_TYPE_WEB, scope=TASK_SCOPE_PROJECT
         )
 
+
         project_data = {
             "description": "Web test project",
             "title": "Tunga Dev Phase 1",

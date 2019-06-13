@@ -65,6 +65,10 @@ class Project(models.Model):
     participants = models.ManyToManyField(
         settings.AUTH_USER_MODEL, through='Participation', through_fields=('project', 'user'),
         related_name='project_participants', blank=True)
+def projects_by_user(user):
+    participations = Participation.objects.filter(user=user)
+    project_ids = actions.values_list('project')
+    return Project.objects.filter(id__in=project_ids)
 
     legacy_id = models.PositiveIntegerField(blank=True, null=True)
     migrated_at = models.DateTimeField(blank=True, null=True)
@@ -144,7 +148,14 @@ class Participation(models.Model):
     migrated_at = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
-        return '#{} | {} - {}'.format(self.id, self.user.get_short_name() or self.user.username, self.project.title)
+
+        if self.user.is_authicated():
+            return '#{} | {} - {}'.format(self.id, self.user.get_short_name() or self.user.username, self.project.title)
+        else:
+            return '#{} | {}'.format(self.id, self.project.title)
+        
+
+
 
     class Meta:
         unique_together = ('user', 'project')

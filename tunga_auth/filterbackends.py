@@ -15,21 +15,34 @@ def my_connections_q_filter(user):
         (
             Q(connections_initiated__to_user=user) &
             Q(connections_initiated__status=STATUS_ACCEPTED)
+           
         ) |
         (
             Q(connection_requests__from_user=user) &
             Q(connection_requests__status=STATUS_ACCEPTED)
-        )
-    )
-
+        )   
+       
+    )   
 
 class UserFilterBackend(DRYPermissionFiltersBase):
-
     def filter_list_queryset(self, request, queryset, view):
         if view.action == 'list':
             queryset = queryset.exclude(id=request.user.id)
         queryset = queryset.exclude(pending=True)
         user_filter = request.query_params.get('filter', None)
+        project_id = request.query_params.get('project', None)
+        if project_id:
+            queryset = queryset.filter(
+                Q(projects_created__id = project_id) |
+                Q(projects_managed__id = project_id) |
+                Q(projects_owned__id = project_id) |
+
+                (
+                    Q(project_participation__project__id = project_id) &
+                    Q(project_participation__status = STATUS_ACCEPTED)
+
+                )
+            )
         if user_filter in ['developers', 'project-owners', 'clients', 'project-managers', 'pms']:
             if user_filter == 'developers':
                 queryset = queryset.filter(type=USER_TYPE_DEVELOPER)
@@ -75,6 +88,7 @@ class UserFilterBackend(DRYPermissionFiltersBase):
         elif user_filter in ['team', 'my-project-owners', 'my-clients']:
             if user_filter in ['my-project-owners', 'my-clients']:
                 user_type = USER_TYPE_PROJECT_OWNER
+            
             else:
                 user_type = USER_TYPE_DEVELOPER
             queryset = queryset.filter(type=user_type).filter(
@@ -82,7 +96,7 @@ class UserFilterBackend(DRYPermissionFiltersBase):
             )
         elif user_filter == 'requests':
             queryset = queryset.filter(
-                connections_initiated__to_user=request.user, connections_initiated__status=STATUS_INITIAL)
+                connections_initiated__to_user=request.user, connections_initiated__status=STATUS_INITIAL) 
         elif user_filter == 'relevant':
             queryset = queryset.filter(type=USER_TYPE_DEVELOPER)
             try:
@@ -105,3 +119,10 @@ class UserFilterBackend(DRYPermissionFiltersBase):
             except (ObjectDoesNotExist, UserProfile.DoesNotExist):
                 return queryset.none()
         return queryset
+
+
+
+
+
+
+    
