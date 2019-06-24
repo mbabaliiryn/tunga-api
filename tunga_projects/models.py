@@ -369,12 +369,16 @@ class ProgressEvent(models.Model):
     @property
     def status(self):
         if self.progressreport_set.count() > 0:
-            return 'completed'
+            if self.progressreport_set.count() >= 100:
+                remind_progress_event is None
+            else:
+                return 'completed'
         past_by_24_hours = datetime.datetime.utcnow() - relativedelta(hours=24)
         if self.due_at > past_by_24_hours:
             return 'upcoming'
         return 'missed'
 
+        
 
 @python_2_unicode_compatible
 class ProgressReport(models.Model):
@@ -459,7 +463,6 @@ class ProgressReport(models.Model):
     @allow_staff_or_superuser
     def has_object_write_permission(self, request):
         return request.user == self.user
-
 
 @python_2_unicode_compatible
 class ProjectMeta(models.Model):

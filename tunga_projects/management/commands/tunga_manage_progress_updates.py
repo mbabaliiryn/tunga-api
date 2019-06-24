@@ -71,7 +71,6 @@ class Command(BaseCommand):
                     )
                     if not pm_event.last_reminder_at:
                         remind_progress_event.delay(pm_event.id)
-
                 owner = project.owner or project.user
                 if weekday == 0 and participants and owner and owner.is_active:
                     # Client surveys on Monday (0)
@@ -81,3 +80,7 @@ class Command(BaseCommand):
                     )
                     if not client_event.last_reminder_at:
                         remind_progress_event.delay(client_event.id)
+                      
+                        
+                       
+                            
