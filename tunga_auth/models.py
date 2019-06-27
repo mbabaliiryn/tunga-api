@@ -8,7 +8,6 @@ from django.db import models
 from django.utils.encoding import force_bytes, python_2_unicode_compatible
 from django.utils.http import urlsafe_base64_encode
 from dry_rest_permissions.generics import allow_staff_or_superuser
-
 from tunga_utils import bitcoin_utils, coinbase_utils
 from tunga_utils.constants import PAYMENT_METHOD_BTC_ADDRESS, PAYMENT_METHOD_BTC_WALLET, BTC_WALLET_PROVIDER_COINBASE, \
     USER_TYPE_DEVELOPER, USER_TYPE_PROJECT_OWNER, USER_TYPE_PROJECT_MANAGER, USER_SOURCE_DEFAULT, \
@@ -36,10 +35,10 @@ PAYONEER_STATUS_CHOICES = (
     (STATUS_DECLINED, 'Decline')
 )
 
-
 class TungaUser(AbstractUser):
     type = models.IntegerField(choices=USER_TYPE_CHOICES, blank=True, null=True)
     is_internal = models.BooleanField(default=False)
+    start_date = models.DateField(null=True, blank=True)
     image = models.ImageField(upload_to='photos/%Y/%m/%d', blank=True, null=True, validators=[validate_file_size])
     verified = models.BooleanField(default=False)
     pending = models.BooleanField(default=True)
@@ -72,6 +71,10 @@ class TungaUser(AbstractUser):
 
     def get_absolute_url(self):
         return '/developer/{}/'.format(self.username)
+    @property
+    def get_years(self):
+        return int((present_date.today() - self.start_date.days))
+    years= property(get_years)
 
     @staticmethod
     @allow_staff_or_superuser
@@ -246,6 +249,8 @@ class TungaUser(AbstractUser):
             total_score += (work_count * 0.02)
         total_score += self.education_set.all().count() * 0.04
         return total_score
+      
+
 
 
 @python_2_unicode_compatible
