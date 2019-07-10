@@ -91,6 +91,18 @@ class TungaUser(AbstractUser):
     def has_object_write_permission(self, request):
         return request.user.is_authenticated() and request.user.id == self.id
 
+
+    @property
+    def history(self, participation):
+        Project.objects.filter(participants__in=user).count()
+        return projects
+
+    @property
+    def is_on_a_project(self,participation):
+        Project.objects.filter(participants__in=user)
+        return True if projects else False
+
+        
     @property
     def display_name(self):
         return (self.get_full_name() or self.username).title()
@@ -143,6 +155,8 @@ class TungaUser(AbstractUser):
         except:
             return None
 
+
+         
     @property
     def company(self):
         try:
@@ -246,7 +260,7 @@ class TungaUser(AbstractUser):
             total_score += (work_count * 0.02)
         total_score += self.education_set.all().count() * 0.04
         return total_score
-
+        
 
 @python_2_unicode_compatible
 class EmailVisitor(models.Model):
