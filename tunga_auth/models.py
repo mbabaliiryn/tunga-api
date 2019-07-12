@@ -91,15 +91,15 @@ class TungaUser(AbstractUser):
     def has_object_write_permission(self, request):
         return request.user.is_authenticated() and request.user.id == self.id
 
-    @property
-    def history(self, participation):
-        projects = Project.objects.filter(participants__in=user).count()
-        return projects
+        @property
+        def history(self, participation):
+            projects = Project.objects.filter(participants__in=user).count()
+            return projects
 
     @property
     def is_on_a_project(self, participation):
-    projects = Project.objects.filter(participants__in=user)
-    return True if projects else False
+        projects = Project.objects.filter(participants__in=user)
+        return True if projects else False
 
 
 
