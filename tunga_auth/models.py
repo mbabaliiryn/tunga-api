@@ -92,6 +92,19 @@ class TungaUser(AbstractUser):
         return request.user.is_authenticated() and request.user.id == self.id
 
     @property
+    def history(self, participation):
+        projects = Project.objects.filter(participants__in=user).count()
+        return projects
+
+    @property
+    def is_on_a_project(self, participation):
+    projects = Project.objects.filter(participants__in=user)
+    return True if projects else False
+
+
+
+
+    @property
     def display_name(self):
         return (self.get_full_name() or self.username).title()
 
