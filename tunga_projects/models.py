@@ -369,7 +369,10 @@ class ProgressEvent(models.Model):
     @property
     def status(self):
         if self.progressreport_set.count() > 0:
-            return 'completed'
+            if self.progressreport_set.count() >= 100:
+                remind_progressreport is None
+                else:
+                    return 'completed'
         past_by_24_hours = datetime.datetime.utcnow() - relativedelta(hours=24)
         if self.due_at > past_by_24_hours:
             return 'upcoming'
