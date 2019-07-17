@@ -93,14 +93,17 @@ class TungaUser(AbstractUser):
 
 
     @property
-    def history(self, participation):
-        Project.objects.filter(participants__in=user).count()
+    def history(self, participation)
+        projects = project.object.filter(participants__in=user).count()
         return projects
 
+    
     @property
-    def is_on_a_project(self,participation):
-        Project.objects.filter(participants__in=user)
-        return True if projects else False
+    def is_on_a_project(self, participation)
+        projects = project.object.filter(participants__in=user).count()
+        return True if projects
+        else:
+            return False
 
         
     @property
