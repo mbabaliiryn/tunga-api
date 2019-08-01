@@ -16,9 +16,9 @@ def notify_new_contact_request_email(contact_request):
 
     if contact_request.body:
         slack_msg = '{} {} is inquiring about {}'.format(
-            contact_request.fullname + "\n",
-            contact_request.fullname + "\n",
-            contact_request.fullname + "\n",
+            contact_request.fullname +"\n"
+            contact_request.fullname +"\n"
+            contact_request.fullname +"\n"
             
         )
 
