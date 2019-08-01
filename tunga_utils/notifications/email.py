@@ -16,9 +16,10 @@ def notify_new_contact_request_email(contact_request):
 
     if contact_request.body:
         slack_msg = '{} {} is inquiring about {}'.format(
-            contact_request.fullname +"\n",
-            contact_request.email +"\n",
-            contact_request.body +"\n",
+            contact_request.fullname + "\n",
+            contact_request.fullname + "\n",
+            contact_request.fullname + "\n",
+            
         )
 
         slack_utils.send_incoming_webhook(
